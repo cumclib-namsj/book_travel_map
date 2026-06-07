@@ -339,7 +339,7 @@
     <div class="h-sub">2025 여름 이벤트 · 대학도서관</div>
   </div>
   <div class="h-right">
-    <div class="stat-pill"><b id="total-cnt">8</b>권 추천됨</div>
+    <div class="stat-pill"><b id="total-cnt">...</b>권 추천됨</div>
     <button class="rec-btn" id="rec-btn" onclick="window.open('https://forms.gle/oWhpAayCq4LpkrRc8','_blank')">✏️ 책 추천하기</button>
     <button id="dev-toggle" onclick="devToggle()" title="개발용 모드 전환" style="background:none;border:none;cursor:pointer;padding:4px 6px;opacity:0.15;color:var(--sky);font-size:10px;letter-spacing:0.5px;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.6'" onmouseout="this.style.opacity='0.15'">DEV</button>
   </div>
@@ -479,10 +479,7 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
       },
       onEachFeature: (f, layer) => {
         const name = f.properties.ADMIN || f.properties.name || '';
-        if (DATA[name]) {
-          geoLayers[name] = layer;
-          layer.on('click', () => openPanel(name));
-        }
+        if (name) geoLayers[name] = layer;  // DATA 로드 전이므로 조건 없이 전체 저장
       }
     }).addTo(map);
   })
@@ -578,14 +575,21 @@ function initMap() {
     markerMap[country] = m;
   });
 
-  // GeoJSON 육지 스타일 갱신 (데이터 있는 국가 강조)
+  // GeoJSON 육지 스타일 갱신 — 데이터 있는 국가 강조, 클릭 이벤트 등록
   Object.entries(geoLayers).forEach(([name, layer]) => {
     if (DATA[name]) {
       layer.setStyle({
         fillColor: '#1a5a9a', fillOpacity: 0.55,
         color: 'rgba(245,166,35,0.45)', weight: 1.2
       });
-      layer.on('click', () => openPanel(name));
+      layer.off('click');
+      layer.on('click', () => { if (mode === 'web') openPanel(name); });
+    } else {
+      layer.setStyle({
+        fillColor: '#0d2e54', fillOpacity: 0.3,
+        color: 'rgba(168,200,232,0.18)', weight: 0.4
+      });
+      layer.off('click');
     }
   });
 
