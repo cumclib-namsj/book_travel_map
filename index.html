@@ -461,33 +461,20 @@ fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json')
     // topojson → geojson 변환 없이 직접 사용 못하므로 countries 데이터용 스크립트 별도 로드
   });
 
-// 대신 countries geojson 직접 사용
+// countries geojson + API 동시 로드 — 둘 다 완료 후 initMap()
 const geoLayers = {};
-fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+const geoPromise = fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
   .then(r => r.json())
   .then(geo => {
     L.geoJSON(geo, {
-      style: f => {
-        const name = f.properties.ADMIN || f.properties.name || '';
-        const hasData = !!DATA[name];
-        return {
-          fillColor:   hasData ? '#1a5a9a' : '#0d2e54',
-          fillOpacity: hasData ? 0.55 : 0.3,
-          color:       hasData ? 'rgba(245,166,35,0.45)' : 'rgba(168,200,232,0.18)',
-          weight:      hasData ? 1.2 : 0.4
-        };
-      },
+      style: () => ({ fillColor:'#0d2e54', fillOpacity:0.3, color:'rgba(168,200,232,0.18)', weight:0.4 }),
       onEachFeature: (f, layer) => {
         const name = f.properties.ADMIN || f.properties.name || '';
-        if (name) geoLayers[name] = layer;  // DATA 로드 전이므로 조건 없이 전체 저장
+        if (name) geoLayers[name] = layer;
       }
     }).addTo(map);
   })
-  .catch(() => {
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 18, subdomains: 'abcd'
-    }).addTo(map);
-  });
+  .catch(() => {});
 
 function highlightCountry(country) {
   Object.entries(geoLayers).forEach(([c, layer]) => {
@@ -740,38 +727,35 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('popup-close').addEventListener('click', closeBookPopup);
 });
-// ── API 데이터 로드 ──
-function loadData() {
-  document.getElementById('total-cnt').textContent = '...';
-  fetch(API_URL)
-    .then(r => r.json())
-    .then(apiData => {
-      DATA = {};
-      Object.entries(apiData).forEach(([country, books]) => {
-        const coords = COORDS[country];
-        if (!coords || !books.length) return;
-        // API 응답의 library_url을 link로 매핑
-        DATA[country] = {
-          lat: coords[0], lng: coords[1],
-          books: books.map(b => ({
-            title:  b.title  || '',
-            city:   b.city   || '',
-            reason: b.reason || '',
-            link:   b.library_url || '#',
-            cover:  b.cover  || ''
-          }))
-        };
-      });
-      initMap();
-    })
-    .catch(err => {
-      console.error('API 로드 실패:', err);
-      document.getElementById('total-cnt').textContent = '오류';
-    });
-}
+// ── GeoJSON + API 동시 로드, 둘 다 완료 후 initMap() ──
+document.getElementById('total-cnt').textContent = '...';
 
-// 페이지 로드 시 데이터 가져오기
-loadData();
+const apiPromise = fetch(API_URL)
+  .then(r => r.json());
+
+Promise.all([geoPromise, apiPromise])
+  .then(([, apiData]) => {
+    DATA = {};
+    Object.entries(apiData).forEach(([country, books]) => {
+      const coords = COORDS[country];
+      if (!coords || !books.length) return;
+      DATA[country] = {
+        lat: coords[0], lng: coords[1],
+        books: books.map(b => ({
+          title:  b.title  || '',
+          city:   b.city   || '',
+          reason: b.reason || '',
+          link:   b.library_url || '#',
+          cover:  b.cover  || ''
+        }))
+      };
+    });
+    initMap();
+  })
+  .catch(err => {
+    console.error('로드 실패:', err);
+    document.getElementById('total-cnt').textContent = '오류';
+  });
 
 // ── 개발용 모드 전환 (배포 전 제거) ──
 function devToggle() {
