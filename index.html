@@ -10,19 +10,19 @@
 <style>
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
   :root {
-    --navy: #0a2340;
-    --navy-mid: #0d3460;
-    --navy-light: #1a4e82;
+    --navy: #2d7a7a;
+    --navy-mid: #2d7a7a;
+    --navy-light: #3d8888;
     --gold: #f5a623;
     --gold-light: #f8c96b;
-    --sky: #a8c8e8;
-    --cream: #f0e8d4;
-    --panel-bg: rgba(8,22,44,0.96);
+    --sky: #c8b0a8;
+    --cream: #fff0ec;
+    --panel-bg: rgba(15,50,50,0.96);
   }
   html, body { height: 100%; overflow: hidden; }
   body {
     font-family: 'Noto Sans KR', sans-serif;
-    background: #071d3a;
+    background: #2d7a7a;
     color: var(--cream);
   }
 
@@ -30,7 +30,7 @@
   #header {
     position: fixed; top: 0; left: 0; right: 0; z-index: 1100;
     height: 60px;
-    background: linear-gradient(90deg, #071d3a 0%, #0d3460 50%, #071d3a 100%);
+    background: linear-gradient(90deg, #1e5858 0%, #2d7a7a 50%, #1e5858 100%);
     border-bottom: 1.5px solid rgba(245,166,35,0.5);
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 20px;
@@ -52,7 +52,7 @@
   }
   .stat-pill b { color: var(--gold-light); font-size: 15px; margin-right: 2px; }
   .rec-btn {
-    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    background: linear-gradient(135deg, #f5a623, #f8c96b);
     color: #071d3a; border: none; border-radius: 20px;
     padding: 8px 18px; font-family: 'Noto Sans KR', sans-serif;
     font-size: 12px; font-weight: 700; cursor: pointer;
@@ -66,7 +66,7 @@
     position: fixed; top: 60px; left: 0; right: 0; bottom: 0;
     z-index: 1;
   }
-  .leaflet-container { background: #071d3a !important; }
+  .leaflet-container { background: #2d7a7a !important; }
 
 
 
@@ -111,7 +111,7 @@
   #cards-wrap::-webkit-scrollbar-thumb { background: rgba(245,166,35,0.3); border-radius: 4px; }
   .book-card {
     flex-shrink: 0; width: 195px;
-    background: rgba(13,52,96,0.75);
+    background: rgba(15,45,45,0.75);
     border: 1px solid rgba(245,166,35,0.2);
     border-radius: 14px; overflow: hidden;
     transition: transform 0.18s, border-color 0.18s;
@@ -122,7 +122,7 @@
     width: 100%; height: 110px;
     display: flex; align-items: center; justify-content: center;
     font-size: 38px;
-    background: linear-gradient(135deg, #1a4e82, #0d3460);
+    background: linear-gradient(135deg, #1a6060, #0d4040);
     overflow: hidden; flex-shrink: 0;
   }
   .book-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -145,7 +145,7 @@
   #screen-panel {
     position: fixed; top: 60px; right: 0; bottom: 0; z-index: 1050;
     width: 596px;
-    background: rgba(7,22,44,0.93);
+    background: rgba(15,50,50,0.93);
     border-left: 1.5px solid rgba(245,166,35,0.3);
     backdrop-filter: blur(14px);
     display: none; flex-direction: column;
@@ -163,7 +163,7 @@
     min-height: 0;
   }
   .sc-card {
-    background: rgba(13,52,96,0.75);
+    background: rgba(15,45,45,0.75);
     border: 1px solid rgba(245,166,35,0.2);
     border-radius: 14px; overflow: hidden;
     display: flex; flex-direction: column;
@@ -171,7 +171,7 @@
   }
   .sc-card-cover {
     width: 100%; flex: 3;
-    background: linear-gradient(135deg, #1a4e82, #0d3460);
+    background: linear-gradient(135deg, #1a6060, #0d4040);
     display: flex; align-items: center; justify-content: center;
     font-size: 42px; overflow: hidden; min-height: 0;
   }
@@ -186,10 +186,10 @@
   .sc-card-reason { font-size: 18px; color: var(--sky); line-height: 1.6; overflow: hidden;
     display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; }
   .progress-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 16px; }
-  .progress-fill { height: 100%; width: 0%; border-radius: 2px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); transition: width 0.05s linear; }
+  .progress-fill { height: 100%; width: 0%; border-radius: 2px; background: linear-gradient(90deg, #f5a623, #f8c96b); transition: width 0.05s linear; }
   .sc-dots { display: flex; gap: 6px; margin-top: 12px; }
   .sc-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.18); transition: background 0.3s; }
-  .sc-dot.on { background: var(--gold); }
+  .sc-dot.on { background: #f5a623; }
 
 
   /* ── MOBILE ── */
@@ -258,7 +258,7 @@
 
   /* leaflet popup */
   .leaflet-popup-content-wrapper {
-    background: rgba(7,22,44,0.95) !important;
+    background: rgba(15,50,50,0.96) !important;
     border: 1px solid rgba(245,166,35,0.4) !important;
     border-radius: 10px !important; color: var(--cream) !important;
     box-shadow: 0 8px 28px rgba(0,0,0,0.55) !important;
@@ -285,7 +285,7 @@
   }
   #book-popup-overlay.show { opacity: 1; pointer-events: all; }
   #book-popup {
-    background: #0d2e54;
+    background: rgba(15,50,50,0.96);
     border: 1px solid rgba(245,166,35,0.45);
     border-radius: 18px; width: 100%; max-width: 380px;
     overflow: hidden;
@@ -295,7 +295,7 @@
   #book-popup-overlay.show #book-popup { transform: translateY(0); }
   #popup-cover {
     width: 100%; height: 180px;
-    background: linear-gradient(135deg, #1a4e82, #0a2340);
+    background: linear-gradient(135deg, #1a6060, #0d4040);
     display: flex; align-items: center; justify-content: center;
     overflow: hidden; flex-shrink: 0;
   }
@@ -450,16 +450,9 @@ const map = L.map('map', {
   clickTolerance: 10
 }).setView([25, 15], 2);
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
-  maxZoom: 18, subdomains: 'abcd'
-}).addTo(map);
+// 타일 없음 — leaflet-container 배경색(#2d7a7a)이 바다색
 
-// GeoJSON 국경선 (CDN)
-fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json')
-  .then(r => r.json())
-  .then(topo => {
-    // topojson → geojson 변환 없이 직접 사용 못하므로 countries 데이터용 스크립트 별도 로드
-  });
+
 
 // countries geojson + API 동시 로드 — 둘 다 완료 후 initMap()
 const geoLayers = {};
@@ -467,7 +460,7 @@ const geoPromise = fetch('https://raw.githubusercontent.com/datasets/geo-countri
   .then(r => r.json())
   .then(geo => {
     L.geoJSON(geo, {
-      style: () => ({ fillColor:'#0d2e54', fillOpacity:0.3, color:'rgba(168,200,232,0.18)', weight:0.4 }),
+      style: () => ({ fillColor:'#FFE5D9', fillOpacity:0.9, color:'rgba(160,120,80,0.4)', weight:0.6 }),
       onEachFeature: (f, layer) => {
         const name = f.properties.ADMIN || f.properties.name || '';
         if (name) geoLayers[name] = layer;
@@ -479,10 +472,10 @@ const geoPromise = fetch('https://raw.githubusercontent.com/datasets/geo-countri
 function highlightCountry(country) {
   Object.entries(geoLayers).forEach(([c, layer]) => {
     if (c === country) {
-      layer.setStyle({ fillColor:'#f5a623', fillOpacity:0.45, color:'rgba(248,201,107,0.9)', weight:2.5 });
+      layer.setStyle({ fillColor:'#f5a623', fillOpacity:0.7, color:'rgba(248,201,107,0.95)', weight:2.5 });
       layer.bringToFront();
     } else if (DATA[c]) {
-      layer.setStyle({ fillColor:'#1a5a9a', fillOpacity:0.55, color:'rgba(245,166,35,0.45)', weight:1.2 });
+      layer.setStyle({ fillColor:'#F97068', fillOpacity:0.85, color:'rgba(255,200,180,0.6)', weight:1.2 });
     }
   });
 }
@@ -566,15 +559,15 @@ function initMap() {
   Object.entries(geoLayers).forEach(([name, layer]) => {
     if (DATA[name]) {
       layer.setStyle({
-        fillColor: '#1a5a9a', fillOpacity: 0.55,
-        color: 'rgba(245,166,35,0.45)', weight: 1.2
+        fillColor: '#F97068', fillOpacity: 0.85,
+        color: 'rgba(255,200,180,0.6)', weight: 1.2
       });
       layer.off('click');
       layer.on('click', () => { if (mode === 'web') openPanel(name); });
     } else {
       layer.setStyle({
-        fillColor: '#0d2e54', fillOpacity: 0.3,
-        color: 'rgba(168,200,232,0.18)', weight: 0.4
+        fillColor: '#FFE5D9', fillOpacity: 0.9,
+        color: 'rgba(160,120,80,0.4)', weight: 0.6
       });
       layer.off('click');
     }
