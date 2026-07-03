@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -67,10 +68,6 @@
     z-index: 1;
   }
   .leaflet-container { background: #2d7a7a !important; }
-
-
-
-
 
   /* ── BOTTOM PANEL (web mode) ── */
   #panel {
@@ -216,9 +213,7 @@
     .book-link { font-size: 10px; }
   }
   /* ── PINS ── */
-  /* Leaflet 마커 클릭 영역 활성화 */
   .leaflet-marker-icon { pointer-events: auto !important; cursor: pointer !important; }
-  /* 웹 핀 — ripple 없음, head만 */
   .pin-head {
     position: absolute; top: 4px; left: 4px;
     border-radius: 50%;
@@ -236,7 +231,6 @@
     border-top: 11px solid #c87010;
     filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
   }
-  /* 스크린 모드 강조 핀 */
   .pin-head-active {
     background: radial-gradient(circle at 35% 30%, #fff5a0, #ffcc00) !important;
     border-color: rgba(255,255,200,0.9) !important;
@@ -255,8 +249,6 @@
     100% { transform: scale(3.8); opacity: 0; }
   }
 
-
-  /* leaflet popup */
   .leaflet-popup-content-wrapper {
     background: rgba(15,50,50,0.96) !important;
     border: 1px solid rgba(245,166,35,0.4) !important;
@@ -340,16 +332,13 @@
   </div>
   <div class="h-right">
     <div class="stat-pill"><b id="total-cnt">...</b>권 추천됨</div>
-    <button class="rec-btn" id="rec-btn" onclick="window.open('https://forms.gle/nw33RqShWzLiGA8E6','_blank')">✏️ 책 추천하기</button>
+    <button class="rec-btn" id="rec-btn" onclick="window.open('https://forms.gle/nw33RqShWzLiGA8E6','_blank','noopener,noreferrer')">✏️ 책 추천하기</button>
     <button id="dev-toggle" onclick="devToggle()" title="개발용 모드 전환" style="background:none;border:none;cursor:pointer;padding:4px 6px;opacity:0.15;color:var(--sky);font-size:10px;letter-spacing:0.5px;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.6'" onmouseout="this.style.opacity='0.15'">DEV</button>
   </div>
 </div>
 
 <!-- MAP -->
 <div id="map"></div>
-
-
-
 
 <!-- BOTTOM PANEL (web mode) -->
 <div id="panel">
@@ -379,12 +368,26 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ── SAMPLE DATA (실제 서비스에서는 Apps Script API로 교체) ──
+// ── URL 검증 함수 ──
+const ALLOWED_LINK_PREFIX = 'https://lib.cuk.ac.kr/search/detail/';
+function isSafeLink(url) {
+  return url && url.startsWith(ALLOWED_LINK_PREFIX);
+}
+
+// ── HTML 이스케이프 함수 ──
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // ── API 설정 ──
-// Apps Script 웹앱 배포 후 아래 URL을 교체하세요
 const API_URL = 'https://script.google.com/macros/s/AKfycbxGfYW3TiSfHrxCX6HZHKKycyAmEUGqnohaC4gDtg4jaOiAY1pNGJOQk8EuUF4VVUyAgw/exec';
 
-// 국가별 위경도 좌표 (API 응답에 없으므로 별도 관리)
 const COORDS = {
   "Afghanistan":[33.9,67.7],"Albania":[41.2,20.2],"Algeria":[28.0,2.6],
   "Angola":[-11.2,17.9],"Argentina":[-38.4,-63.6],"Armenia":[40.1,45.0],
@@ -441,7 +444,7 @@ const COORDS = {
   "Zimbabwe":[-20.0,30.0]
 };
 
-let DATA = {};  // loadData() 호출 후 채워짐
+let DATA = {};
 
 // ── MAP INIT ──
 const map = L.map('map', {
@@ -450,11 +453,6 @@ const map = L.map('map', {
   clickTolerance: 10
 }).setView([25, 15], 2);
 
-// 타일 없음 — leaflet-container 배경색(#2d7a7a)이 바다색
-
-
-
-// countries geojson + API 동시 로드 — 둘 다 완료 후 initMap()
 const geoLayers = {};
 const geoPromise = fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
   .then(r => r.json())
@@ -480,14 +478,9 @@ function highlightCountry(country) {
   });
 }
 
-// ── URL 파라미터로 모드 자동 분기 ──
-// 웹 보기:    index.html
-// 스크린 전시: index.html?screen
 const IS_SCREEN = new URLSearchParams(window.location.search).has('screen');
 const mode = IS_SCREEN ? 'screen' : 'web';
 
-// 웹 모드: 줌 아웃 제한 + 경계 제한
-// 스크린 모드: 제한 없음 (flyTo 자유롭게)
 function applyWebBounds() {
   map.setMinZoom(2);
   map.setMaxBounds([[-85, -210], [85, 210]]);
@@ -503,7 +496,6 @@ if (!IS_SCREEN) applyWebBounds();
 // ── MARKERS ──
 const markerMap = {};
 
-// 추천 수 → 헤드 크기 (최소 18px, 최대 36px로 고정)
 function pinHeadSize(n) {
   return Math.min(18 + (n - 1) * 6, 36);
 }
@@ -516,7 +508,6 @@ function makePinIcon(n, active=false) {
   const label = n > 1 ? `<span style="font-size:${Math.max(8, hd/2.8)}px;">${n}</span>` : '';
   const headCls = active ? 'pin-head pin-head-active' : 'pin-head';
   const tailCls = active ? 'pin-tail pin-tail-active' : 'pin-tail';
-  // ripple은 스크린 모드 강조 핀에서만
   const ripple = active
     ? `<div class="pin-ring-active" style="width:${hd}px;height:${hd}px;top:4px;left:4px;"></div>`
     : '';
@@ -533,20 +524,17 @@ function makePinIcon(n, active=false) {
 }
 
 function initMap() {
-  // 기존 마커 모두 제거
   Object.values(markerMap).forEach(m => m.remove());
   Object.keys(markerMap).forEach(k => delete markerMap[k]);
 
-  // 총 추천 수 업데이트
   const total = Object.values(DATA).reduce((s, d) => s + d.books.length, 0);
   document.getElementById('total-cnt').textContent = total;
 
-  // 마커 생성
   Object.entries(DATA).forEach(([country, d]) => {
     const cnt = d.books.length;
     const m = L.marker([d.lat, d.lng], { icon: makePinIcon(cnt) }).addTo(map);
     m.bindPopup(
-      `<div class="pop-title">${country}</div><div class="pop-sub">추천 도서 ${cnt}권</div>`,
+      `<div class="pop-title">${esc(country)}</div><div class="pop-sub">추천 도서 ${cnt}권</div>`,
       { closeButton: false, offset: [0, -10] }
     );
     m.on('click', () => { if (mode === 'web') { openPanel(country); m.closePopup(); } });
@@ -555,7 +543,6 @@ function initMap() {
     markerMap[country] = m;
   });
 
-  // GeoJSON 육지 스타일 갱신 — 데이터 있는 국가 강조, 클릭 이벤트 등록
   Object.entries(geoLayers).forEach(([name, layer]) => {
     if (DATA[name]) {
       layer.setStyle({
@@ -573,7 +560,6 @@ function initMap() {
     }
   });
 
-  // 모드 초기화
   if (IS_SCREEN) {
     document.getElementById('screen-panel').classList.add('show');
     document.getElementById('rec-btn').style.display = 'none';
@@ -592,12 +578,12 @@ function openPanel(country) {
   wrap.innerHTML = d.books.map((b, i) => `
     <div class="book-card" onclick="openBookPopup(${i})" style="cursor:pointer;">
       <div class="book-thumb">
-        ${b.cover ? `<img src="${b.cover}" alt="${b.title}">` : '📖'}
+        ${b.cover ? `<img src="${esc(b.cover)}" alt="${esc(b.title)}">` : '📖'}
       </div>
       <div class="book-body">
-        <div class="book-title">${b.title}</div>
-        ${b.city ? `<div class="book-city">📍 ${b.city}</div>` : ''}
-        <div class="book-reason">${b.reason}</div>
+        <div class="book-title">${esc(b.title)}</div>
+        ${b.city ? `<div class="book-city">📍 ${esc(b.city)}</div>` : ''}
+        <div class="book-reason">${esc(b.reason)}</div>
         <span class="book-link" style="pointer-events:none;">상세 보기 →</span>
       </div>
     </div>`).join('');
@@ -628,12 +614,9 @@ function showScCountry(ci) {
   const dots = document.getElementById('sc-dots');
   dots.innerHTML = d.books.map((_, i) =>
     `<div class="sc-dot${i===0?' on':''}"></div>`).join('');
-  // A: 강조 핀
   Object.entries(markerMap).forEach(([c, m]) =>
     m.setIcon(makePinIcon(DATA[c].books.length, c === country)));
-  // C: 영역 하이라이트
   highlightCountry(country);
-  // 오른쪽 패널(596px) → 지도 중심을 오른쪽으로 298px 이동 → 국가가 왼쪽 영역(860px) 중앙에 위치
   const z = 4;
   const pt = map.project([d.lat, d.lng], z);
   const offsetLL = map.unproject([pt.x + 298, pt.y], z);
@@ -643,14 +626,14 @@ function showScCountry(ci) {
 function makeBookCard(book) {
   if (!book) return '<div></div>';
   const coverHtml = book.cover
-    ? `<img src="${book.cover}" alt="${book.title}">`
+    ? `<img src="${esc(book.cover)}" alt="${esc(book.title)}">`
     : `📖`;
   return `<div class="sc-card">
     <div class="sc-card-cover">${coverHtml}</div>
     <div class="sc-card-body">
-      <div class="sc-card-title">${book.title}</div>
-      ${book.city ? `<div class="sc-card-city">📍 ${book.city}</div>` : ''}
-      <div class="sc-card-reason">${book.reason}</div>
+      <div class="sc-card-title">${esc(book.title)}</div>
+      ${book.city ? `<div class="sc-card-city">📍 ${esc(book.city)}</div>` : ''}
+      <div class="sc-card-reason">${esc(book.reason)}</div>
     </div>
   </div>`;
 }
@@ -669,14 +652,13 @@ function showScBook(country, bi) {
   let p = 0;
   const fill = document.getElementById('prog-fill');
   fill.style.width = '0%';
-  // 2개씩 표시, 책 1개당 5초 → 페어당 10초
   const duration = (next ? 2 : 1) * 5000;
   scProgInt = setInterval(() => {
     p += 100 / (duration / 50);
     fill.style.width = p + '%';
     if (p >= 100) {
       clearInterval(scProgInt);
-      const nextBI = bi + 2;  // 2개씩 건너뜀
+      const nextBI = bi + 2;
       if (nextBI >= d.books.length) {
         scTimer = setTimeout(() => showScCountry(scCI + 1), 600);
       } else {
@@ -686,16 +668,20 @@ function showScBook(country, bi) {
   }, 50);
 }
 
-// 모드 초기화는 loadData() → initMap() 에서 처리
-
-
 // ── BOOK POPUP ──
 function openBookPopup(idx) {
   const b = currentBooks[idx];
   document.getElementById('popup-title').textContent = b.title;
   document.getElementById('popup-city').textContent = b.city ? '📍 ' + b.city : '';
   document.getElementById('popup-reason').textContent = b.reason;
-  document.getElementById('popup-link').href = b.link || '#';
+  const popupLink = document.getElementById('popup-link');
+  if (isSafeLink(b.link)) {
+    popupLink.href = b.link;
+    popupLink.style.display = '';
+  } else {
+    popupLink.href = '#';
+    popupLink.style.display = 'none';
+  }
   const cover = document.getElementById('popup-cover');
   const placeholder = document.getElementById('popup-cover-placeholder');
   const existingImg = cover.querySelector('img');
@@ -720,7 +706,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('popup-close').addEventListener('click', closeBookPopup);
 });
-// ── GeoJSON + API 동시 로드, 둘 다 완료 후 initMap() ──
+
+// ── GeoJSON + API 동시 로드 ──
 document.getElementById('total-cnt').textContent = '...';
 
 const apiPromise = fetch(API_URL)
@@ -738,7 +725,7 @@ Promise.all([geoPromise, apiPromise])
           title:  b.title  || '',
           city:   b.city   || '',
           reason: b.reason || '',
-          link:   b.library_url || '#',
+          link:   b.library_url || '',
           cover:  b.cover  || ''
         }))
       };
@@ -750,7 +737,7 @@ Promise.all([geoPromise, apiPromise])
     document.getElementById('total-cnt').textContent = '오류';
   });
 
-// ── 개발용 모드 전환 (배포 전 제거) ──
+// ── 개발용 모드 전환 ──
 function devToggle() {
   const sp = document.getElementById('screen-panel');
   const rb = document.getElementById('rec-btn');
@@ -783,7 +770,7 @@ function devToggle() {
     <div id="popup-body">
       <div id="popup-city"></div>
       <div id="popup-reason"></div>
-      <a id="popup-link" href="#" target="_blank">도서관 바로가기 →</a>
+      <a id="popup-link" href="#" target="_blank" rel="noopener noreferrer">도서관 바로가기 →</a>
     </div>
   </div>
 </div>
