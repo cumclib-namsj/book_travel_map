@@ -6,8 +6,7 @@
 <title>✈️ Book Travel Map</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./lib/leaflet-1.9.4/leaflet.css"/>
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
   :root {
@@ -197,7 +196,6 @@
     .stat-pill { padding: 3px 8px; font-size: 11px; }
     .stat-pill b { font-size: 13px; }
     .rec-btn { padding: 6px 12px; font-size: 11px; }
-    #dev-toggle { display: none; }
     #map { top: 52px; }
     #screen-panel { top: 52px; }
     #panel { max-height: 48vh; }
@@ -333,7 +331,7 @@
   <div class="h-right">
     <div class="stat-pill"><b id="total-cnt">...</b>권 추천됨</div>
     <button class="rec-btn" id="rec-btn" onclick="window.open('https://forms.gle/nw33RqShWzLiGA8E6','_blank','noopener,noreferrer')">✏️ 책 추천하기</button>
-    <button id="dev-toggle" onclick="devToggle()" title="개발용 모드 전환" style="background:none;border:none;cursor:pointer;padding:4px 6px;opacity:0.15;color:var(--sky);font-size:10px;letter-spacing:0.5px;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.6'" onmouseout="this.style.opacity='0.15'">DEV</button>
+
   </div>
 </div>
 
@@ -366,7 +364,7 @@
   <div class="sc-dots" id="sc-dots"></div>
 </div>
 
-<script src="./lib/leaflet-1.9.4/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // ── URL 검증 함수 ──
 const ALLOWED_LINK_PREFIX = 'https://lib.cuk.ac.kr/search/detail/';
@@ -454,7 +452,7 @@ const map = L.map('map', {
 }).setView([25, 15], 2);
 
 const geoLayers = {};
-const geoPromise = fetch('./data/countries-light.geojson')
+const geoPromise = fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
   .then(r => r.json())
   .then(geo => {
     L.geoJSON(geo, {
@@ -727,7 +725,7 @@ Promise.all([geoPromise, apiPromise])
           reason: b.reason || '',
           link:   b.library_url || '',
           cover:  b.cover  || ''
-        })).reverse()
+        }))
       };
     });
     initMap();
@@ -737,24 +735,7 @@ Promise.all([geoPromise, apiPromise])
     document.getElementById('total-cnt').textContent = '오류';
   });
 
-// ── 개발용 모드 전환 ──
-function devToggle() {
-  const sp = document.getElementById('screen-panel');
-  const rb = document.getElementById('rec-btn');
-  const isNowScreen = !sp.classList.contains('show');
-  if (isNowScreen) {
-    sp.classList.add('show');
-    rb.style.display = 'none';
-    closePanel();
-    removeWebBounds();
-    startScreen();
-  } else {
-    sp.classList.remove('show');
-    rb.style.display = '';
-    stopScreen();
-    applyWebBounds();
-  }
-}
+
 </script>
 
 <!-- BOOK POPUP -->
