@@ -725,7 +725,7 @@ Promise.all([geoPromise, apiPromise])
           reason: b.reason || '',
           link:   b.library_url || '',
           cover:  b.cover  || ''
-        }))
+       })).reverse()
       };
     });
     initMap();
